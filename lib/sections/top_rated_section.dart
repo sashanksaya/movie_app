@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/movie.dart';
-import '../pages/movie_detail_page.dart';
 import '../widgets/section_movie_tile.dart';
 import '../utils/get_movies.dart' as get_movies;
 
@@ -24,13 +23,6 @@ class TopRatedSection extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              // Text(
-              //   "See All",
-              //   style: TextStyle(
-              //     color: Colors.white54,
-              //     fontSize: 16,
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -45,18 +37,10 @@ class TopRatedSection extends StatelessWidget {
                 return Row(
                   children: [
                     for (int movie = 0; movie < movieList.length; movie++)
-                      InkWell(
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            MovieDetailPage.routeName,
-                            arguments: movieList[movie],
-                          );
-                        },
-                        child: SectionMovieTile(
-                          movieList: movieList,
-                          i: movie,
-                        ),
+                      SectionMovieTile(
+                        movieList: movieList,
+                        i: movie,
+                        category: "top_rated",
                       ),
                   ],
                 );

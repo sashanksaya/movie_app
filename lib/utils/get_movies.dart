@@ -16,23 +16,22 @@ Future<List<Movie>> makeRequest(category) async {
           final jsonResponse = json.decode(response.body);
           final movies = jsonResponse['results'] as List<dynamic>;
           List<Movie> movieList = movies.map((movie) {
-            final id = movie['id'];
-            final title = movie['title'];
-            final description = movie['overview'];
-            final image =
-                'https://image.tmdb.org/t/p/w500${movie['poster_path']}';
-            final rating = movie['vote_average'].toDouble();
             final genre = movie['genre_ids'];
             var genresDefined = [];
             for (int g = 0; g < genre.length; g++) {
               genresDefined.add(genresMap[genre[g]]);
             }
             return Movie(
-              id: id,
-              title: title,
-              description: description,
-              image: image,
-              rating: rating,
+              id: movie['id'],
+              title: movie['title'],
+              description: movie['overview'],
+              image: movie['poster_path'] != null
+                  ? 'https://image.tmdb.org/t/p/w500${movie['poster_path']}'
+                  : "https://www.indieactivity.com/wp-content/uploads/2022/03/File-Not-Found-Poster.png",
+              backdropPath: movie['backdrop_path'] != null
+                  ? 'https://image.tmdb.org/t/p/w500${movie['backdrop_path']}'
+                  : "https://www.indieactivity.com/wp-content/uploads/2022/03/File-Not-Found-Profile.jpg",
+              rating: movie['vote_average'].toDouble(),
               genre: genresDefined.join("/"),
             );
           }).toList();
@@ -46,6 +45,58 @@ Future<List<Movie>> makeRequest(category) async {
       }
     },
   );
+}
+
+Future<List<Movie>> getRecommendedMovies(int movieId) async {
+  final url = Uri.parse(
+      'https://api.themoviedb.org/3/movie/$movieId/recommendations?language=en-US&page=1&api_key=${dotenv.env['TMDB_API_KEY']}');
+
+  try {
+    final response = await http.get(url, headers: constants.headers);
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      final movies = jsonResponse['results'] as List<dynamic>;
+      return getMoviesList(movies);
+    } else {
+      throw Exception('Request failed with status: ${response.statusCode}.');
+    }
+  } catch (error) {
+    throw Exception('Error: $error');
+  }
+}
+
+Future<List<Movie>> getSearchedMovie(String movieName) async {
+  final url = Uri.parse(
+      'https://api.themoviedb.org/3/search/movie?query=$movieName&include_adult=false&language=en-US&page=1&api_key=${dotenv.env['TMDB_API_KEY']}');
+  try {
+    final response = await http.get(url, headers: constants.headers);
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      final movies = jsonResponse['results'] as List<dynamic>;
+      return getMoviesList(movies);
+    } else {
+      throw Exception('Request failed with status: ${response.statusCode}.');
+    }
+  } catch (error) {
+    throw Exception('Error: $error');
+  }
+}
+
+List<Movie> getMoviesList(List<dynamic> movies) {
+  return movies.map((movie) {
+    return Movie(
+      id: movie['id'],
+      title: movie['title'],
+      image: movie['poster_path'] != null
+          ? 'https://image.tmdb.org/t/p/w500${movie['poster_path']}'
+          : "https://www.indieactivity.com/wp-content/uploads/2022/03/File-Not-Found-Poster.png",
+      backdropPath: movie['backdrop_path'] != null
+          ? 'https://image.tmdb.org/t/p/w500${movie['backdrop_path']}'
+          : "https://www.indieactivity.com/wp-content/uploads/2022/03/File-Not-Found-Profile.jpg",
+      rating: movie['vote_average'].toDouble() ?? 0.0,
+      description: movie['overview'] ?? " ",
+    );
+  }).toList();
 }
 
 Future<Map> getGenre() async {

@@ -27,13 +27,6 @@ class UpcomingSection extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              // Text(
-              //   "See All",
-              //   style: TextStyle(
-              //     color: Colors.white54,
-              //     fontSize: 16,
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -53,18 +46,24 @@ class UpcomingSection extends StatelessWidget {
                           Navigator.pushNamed(
                             context,
                             MovieDetailPage.routeName,
-                            arguments: movieList[i],
+                            arguments: {
+                              'movie': movieList[i],
+                              'category': 'upcoming'
+                            },
                           );
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 5, right: 5),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: Image.network(
-                              movieList[i].image,
-                              height: 220,
-                              width: 150,
-                              fit: BoxFit.fitHeight,
+                        child: Hero(
+                          tag: '${movieList[i].id}upcoming',
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 5, right: 5),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.network(
+                                movieList[i].image,
+                                height: 220,
+                                width: 150,
+                                fit: BoxFit.fitHeight,
+                              ),
                             ),
                           ),
                         ),
@@ -102,11 +101,14 @@ Future<List<Movie>> makeRequest() async {
         final title = movie['title'];
         final description = movie['overview'];
         final image = 'https://image.tmdb.org/t/p/w500${movie['poster_path']}';
+        final backdropPath =
+            'https://image.tmdb.org/t/p/w500${movie['backdrop_path']}';
         return Movie(
           id: id,
           title: title,
           description: description,
           image: image,
+          backdropPath: backdropPath,
         );
       }).toList();
       return movieList;

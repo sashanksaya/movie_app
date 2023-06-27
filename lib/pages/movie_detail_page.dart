@@ -9,14 +9,18 @@ class MovieDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final movie = ModalRoute.of(context)!.settings.arguments as Movie;
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final movie = args['movie']! as Movie;
+    final category = args['category']!;
+
     return Scaffold(
       body: Stack(
         children: [
           Opacity(
-            opacity: 0.4,
+            opacity: 0.7,
             child: Image.network(
-              movie.image,
+              movie.backdropPath,
               height: 280,
               width: double.infinity,
               fit: BoxFit.fitWidth,
@@ -63,24 +67,26 @@ class MovieDetailPage extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          decoration: BoxDecoration(
+                        Hero(
+                          tag: movie.id.toString() + category.toString(),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color.fromARGB(255, 58, 55, 55)
+                                        .withOpacity(0.6),
+                                    spreadRadius: 1,
+                                    blurRadius: 5,
+                                  )
+                                ]),
+                            child: ClipRRect(
                               borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      const Color.fromARGB(255, 172, 169, 169)
-                                          .withOpacity(0.6),
-                                  spreadRadius: 1,
-                                  blurRadius: 5,
-                                )
-                              ]),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.network(
-                              movie.image,
-                              height: 250,
-                              width: 180,
+                              child: Image.network(
+                                movie.image,
+                                height: 250,
+                                width: 180,
+                              ),
                             ),
                           ),
                         ),
